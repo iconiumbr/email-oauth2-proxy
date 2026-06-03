@@ -1,6 +1,8 @@
 services:
   mailproxy:
     image: ghcr.io/iconiumbr/email-oauth2-proxy:latest
+    tty: true
+    stdin_open: true
     ports:
       - "1143:1143"
       - "1025:1025"
