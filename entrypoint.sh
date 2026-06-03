@@ -12,4 +12,4 @@ else
 fi
 
 echo "[entrypoint] Starting email-oauth2-proxy..."
-exec emailproxy --no-gui --config "$CONFIG"
+exec emailproxy --no-gui --config "$CONFIG" --external-auth
