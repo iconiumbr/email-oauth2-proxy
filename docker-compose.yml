@@ -1,0 +1,10 @@
+services:
+  mailproxy:
+    image: ghcr.io/iconiumbr/email-oauth2-proxy:latest
+    ports:
+      - "1143:1143"
+      - "1025:1025"
+    env_file: .env
+    volumes:
+      - ./config:/config
+    restart: unless-stopped

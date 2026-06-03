@@ -1,3 +1,81 @@
+> **This is a fork of [simonrob/email-oauth2-proxy](https://github.com/simonrob/email-oauth2-proxy).**
+> Added files: `Dockerfile`, `entrypoint.sh`, `emailproxy.config.template`, `docker-compose.yml`, `.env.example`, and a GitHub Actions pipeline to build and publish a multi-platform image to `ghcr.io`.
+> The original project and all its documentation are preserved below unchanged.
+
+---
+
+## Docker Deployment (Microsoft 365 / Device Code flow)
+
+### Prerequisites
+
+- Docker + Docker Compose on the target host
+- An Azure AD app registration (see below)
+
+### 1 — Azure AD App Registration (~5 min, one-time)
+
+1. Sign into [portal.azure.com](https://portal.azure.com) as a global/Exchange admin for your tenant
+2. **App registrations → New registration**
+   - Name: anything (e.g. `mailproxy`)
+   - Supported account types: **Single tenant**
+   - Platform: **Mobile and desktop application**, redirect URI: `http://localhost`
+3. Note the **Application (client) ID** and **Directory (tenant) ID**
+4. **Authentication** → enable **Allow public client flows = Yes**
+5. **API permissions → Add delegated permissions**:
+   - `IMAP.AccessAsUser.All` (Exchange)
+   - `SMTP.Send` (Exchange)
+   - `offline_access` (Microsoft Graph)
+   - Grant admin consent
+6. No client secret required.
+
+### 2 — Deploy
+
+```bash
+# Pull the image
+docker compose pull
+
+# Copy and fill in your IDs
+cp .env.example .env
+# Edit .env: set TENANT_ID and CLIENT_ID
+
+# Start
+docker compose up -d
+```
+
+### 3 — First-run authentication (one-time)
+
+```bash
+docker compose logs -f
+```
+
+The proxy will print a device code and URL, for example:
+
+```
+Visit https://microsoft.com/devicelogin and enter code ABCD1234
+```
+
+Open that URL on **any device**, enter the code, and sign in as the mailbox account.
+The proxy captures the tokens and writes a `refresh_token` to the `/config` volume.
+**No further interaction is ever needed** — the proxy silently renews tokens automatically.
+
+### 4 — Point your legacy systems
+
+| Protocol | Host | Port | Auth |
+|----------|------|------|------|
+| IMAP | `<docker-host>` | `1143` | plain |
+| SMTP | `<docker-host>` | `1025` | SMTP AUTH |
+
+> **Security**: restrict ports 1143 and 1025 to your legacy systems' IPs via firewall rules.
+
+### Build the image yourself
+
+Trigger the **Build and Push Docker Image** workflow manually from the Actions tab, or build locally:
+
+```bash
+docker build -t email-oauth2-proxy .
+```
+
+---
+
 # Email OAuth 2.0 Proxy<a id="email-oauth-20-proxy"></a>
 Transparently add OAuth 2.0 support to IMAP/POP/SMTP client applications, scripts or any other email use-cases that don't support this authentication method.
 
