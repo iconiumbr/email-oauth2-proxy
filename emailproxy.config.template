@@ -9,7 +9,7 @@ server_port = 587
 server_starttls = True
 local_address = 0.0.0.0
 
-[suporte@data.com.br]
+[${ACCOUNT_EMAIL}]
 permission_url = https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/devicecode
 token_url = https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token
 oauth2_flow = device

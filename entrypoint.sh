@@ -6,7 +6,7 @@ CONFIG=/config/emailproxy.config
 # Only render the template on first run - preserve cached tokens on subsequent starts
 if [ ! -f "$CONFIG" ]; then
     echo "[entrypoint] First run: rendering config from template"
-    envsubst '${TENANT_ID} ${CLIENT_ID}' < /emailproxy.config.template > "$CONFIG"
+    envsubst '${TENANT_ID} ${CLIENT_ID} ${ACCOUNT_EMAIL}' < /emailproxy.config.template > "$CONFIG"
 else
     echo "[entrypoint] Config already exists, keeping cached tokens"
 fi
